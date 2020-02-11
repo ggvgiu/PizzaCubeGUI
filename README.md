@@ -7,3 +7,4 @@ svn checkout https://github.com/ggvgiu/PizzaCubeGUI/branches/Release
 
 Seems to be working.
 
+https://imgur.com/a/ZF2HLtG
