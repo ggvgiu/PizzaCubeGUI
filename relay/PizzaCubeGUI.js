@@ -1,15 +1,25 @@
 function writeInterface()
 {
 	document.write(`
-	<p>Adventures: <b id="valueAdv"></b> <small>(<span id="valueLetters"></span>) letters</small><br>
-	<small><em><span id="valueLettersLeft"></span> letters for 15 adv (max)</em></small></p>
+	<p>Adventures: <b id="valueAdv"></b><br>
+	<em>
+	<span style=\"font-size:small\"><span id="valueLetters"></span> letters</span><br>
+	<span style=\"font-size:x-small\"><span id="valueLettersLeftToUp"></span> letters for next adventure increase</span><br>
+	<span style=\"font-size:x-small\"><span id="valueLettersLeftToMax"></span> letters for 15 adv (max)</span>
+	</em>
+	</p>
 
 	<p>Effect turns: <b id="valueTurns"></b><br>
-	<small><em><span id="valueMeat"></span> total auto-sell, <span id="valueMeatLeftToUp"></span> for next turn increase, <span id="valueMeatLeftToMax"></span> for max turns.</em></small></p>
+	<em>
+	<span style=\"font-size:small\"><span id="valueMeat"></span> total auto-sell</span><br>
+	<span style=\"font-size:x-small\"><span id="valueMeatLeftToUp"></span> for next turn increase</span><br>
+	<span style=\"font-size:x-small\"><span id="valueMeatLeftToMax"></span> for max turns</span>
+	</em>
+	</p>
 
 	<p>Effect initials: <b><u><span id="letter0"></span> <span id="letter1"></span> <span id="letter2"></span> <span id="letter3"></span></u></b></p>
 
-	<p><em><b>Special effects: <big id="specialEffects"></big></b></em></p>
+	<p><em><b>Special pizza: <big id="specialPizza"></big></b></em></p>
 	`);
 }
 
@@ -22,6 +32,21 @@ function ($)
 	{
 		var value = Math.round(len/10.0);
 		return Math.min(15, Math.max(3, value));
+	}
+
+	function LenFromAdv(adv)
+	{
+		var len = adv * 10 - 5;
+		return len;
+	}
+
+	function LenToAdvIncrease(len)
+	{
+		var adv = LenToAdventures(len);
+		if (adv == 15)
+			return 0;
+		var lenForNext = LenFromAdv(adv + 1);
+		return lenForNext - len;
 	}
 	
 	function PriceToTurns(price)
@@ -47,9 +72,17 @@ function ($)
 	var prices = [];
 	var lens = [];
 	var letters = [];
-	var effects = [];
+	var special = [];
 	var sort = "alpha";
 	var sortReverse = false;
+	var allEffects = [];
+	
+	$('#effectList option').each(
+		function()
+		{
+			allEffects.push(this);
+		}
+	);
 
 	function ReSort()
 	{
@@ -115,6 +148,64 @@ function ($)
 		updateSortInterface();
 	}
 
+	function updateEffectListWithEffects(validEffects)
+	{
+		var effectList = document.getElementById("effectList");
+		var effectListOptions = [];
+		var len = effectList.length;
+		
+		for (var i = 0; i < len; i++)
+		{
+			effectListOptions.push(effectList[i]);
+		}
+		
+		for (var i = 0; i < len; i++)
+		{
+			effectList.remove(effectListOptions[i]);
+		}
+
+		for (var i = 0; i < validEffects.length; i++)
+		{
+			effectList.add(validEffects[i]);
+		}
+	}
+
+	function updateEffectList(len)
+	{
+		if (len <= 0)
+		{
+			updateEffectListWithEffects(allEffects);
+			return;
+		}
+		
+		var validEffects = [];
+
+		var initial = "";
+		
+		for (var i = 0; i < len; i++)
+		{
+			initial += letters[i];
+		}
+		
+		initial = initial.toLowerCase();
+		
+		for (var i = 0; i < allEffects.length; i++)
+		{
+			if (allEffects[i].text.toLowerCase().startsWith(initial))
+			{
+				validEffects.push(allEffects[i]);
+			}
+		}
+		
+		if (validEffects.length == 0)
+		{
+			updateEffectList(len - 1);
+			return;
+		}
+		
+		updateEffectListWithEffects(validEffects);
+	}
+
 	function updateSortInterface()
 	{
 		var sortReverseStr = sortReverse ? "v" : "^";
@@ -128,7 +219,7 @@ function ($)
 		var sortLetter = document.getElementById("sort-letter");
 		sortLetter.innerHTML = sort == "letter" ? "Letters " + sortReverseStr : "Letters";
 	}
-
+	
 	function updateInterface()
 	{
 		var totalPrice = 0;
@@ -149,23 +240,25 @@ function ($)
 				letter.innerHTML = "_";
 			}
 		}
+		
+		updateEffectList(letters.length);
 
-		var specialEffects = document.getElementById("specialEffects");
-		var effectsText = "none";
-		if (effects.length == 1)
+		var specialPizza = document.getElementById("specialPizza");
+		var specialPizzaText = "none";
+		if (special.length == 1)
 		{
-			effectsText = "<span style=\"color:DodgerBlue;\">"+effects[0]+"</span>";
+			specialPizzaText = "<span style=\"color:DodgerBlue;\">"+special[0]+"</span>";
 		}
-		else if (effects.length > 1)
+		else if (special.length > 1)
 		{
-			effectsText = "<span style=\"color:Tomato\">";
-			for (var i = 0; i < effects.length; i++)
+			specialPizzaText = "<span style=\"color:Tomato\">";
+			for (var i = 0; i < special.length; i++)
 			{
-				effectsText += effects[i] + " ";
+				specialPizzaText += special[i] + " ";
 			}
-			effectsText += "</span>";
+			specialPizzaText += "</span>";
 		}
-		specialEffects.innerHTML = effectsText;
+		specialPizza.innerHTML = specialPizzaText;
 
 		var valueAdv = document.getElementById("valueAdv");
 		valueAdv.innerHTML = LenToAdventures(totalLen);
@@ -173,8 +266,11 @@ function ($)
 		var valueLetters = document.getElementById("valueLetters");
 		valueLetters.innerHTML = totalLen;
 		
-		var valueLettersLeft = document.getElementById("valueLettersLeft");
-		valueLettersLeft.innerHTML = (145 - totalLen);
+		var valueLettersLeftToUp = document.getElementById("valueLettersLeftToUp");
+		valueLettersLeftToUp.innerHTML = LenToAdvIncrease(totalLen);
+
+		var valueLettersLeftToMax = document.getElementById("valueLettersLeftToMax");
+		valueLettersLeftToMax.innerHTML = (145 - totalLen);
 
 		var valueTurns = document.getElementById("valueTurns");
 		valueTurns.innerHTML = PriceToTurns(totalPrice);
@@ -195,7 +291,7 @@ function ($)
 		prices = [];
 		lens = [];
 		letters = [];
-		effects = [];
+		special = [];
 		sort = "alpha";
 		sortReverse = false;
 
@@ -213,12 +309,12 @@ function ($)
 
 		for (var i = 0; i < 7; i++)
 		{
-			var att = 'effect' + i;
-			var effect = opt.attr('effect' + i);
+			var att = 'special' + i;
+			var specialPizza = opt.attr(att);
 			
-			if (effect != null && effects.findIndex(function(a) { return a == effect; }) < 0)
+			if (specialPizza != null && special.findIndex(function(a) { return a == specialPizza; }) < 0)
 			{
-				effects.push(effect);
+				special.push(specialPizza);
 			}
 		}
 
@@ -279,7 +375,17 @@ function ($)
 			}
 		}
 	);
-
+	
+	$('#effectHelp').click(
+		function()
+		{
+			var opt = $('#effectList option:selected');
+			var descId = opt.attr('descId');
+			
+			eff(descId);
+		}
+	);
+	
 	updateInterface();
 	updateSortInterface();
 });

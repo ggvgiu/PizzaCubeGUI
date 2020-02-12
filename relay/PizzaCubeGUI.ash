@@ -5,17 +5,23 @@
 // DONE Parse the data and show final adv/effect turns
 // DONE Improve style
 // DONE Change item sorting: by price, by letter count, alphabetical
-// TODO Parse to possible effects
 // DONE Show possible special pizzas
 // DONE Show x meat for 1 more turn of effect instead of X meat for 100 turns
-// TODO Better layout, adapt to size of frame, unhardcode pixel sizes
-// TODO List effects
+// DONE Show x letters for next adventure
+// DONE Better layout, adapt to size of frame, unhardcode pixel sizes
+// DONE List, predict effects
+
+// TODO Parse to possible effects
+
 // TODO Enable/disable
 
+// TODO Add bake log with pizza info
+// TODO Filter out letters for choosing the effect
+// TODO PRO Remember pizza you already baked or some other way of favoriting them and make them again with one click
 
 item [int] _familiarHatchlings;
 
-string [int] CheckItemSpecialEffects(item it)
+string [int] CheckItemSpecialPizza(item it)
 {
 	int currIdx = 0;
 
@@ -37,48 +43,59 @@ string [int] CheckItemSpecialEffects(item it)
 		}
 	}
 
-	string [int] effects;
+	string [int] special;
 	currIdx = 0;
 
 	if (it.combat)
 	{
-		effects[currIdx++] = "combat";
+		special[currIdx++] = "combat";
 	}
 
 
 	if (isFamHatch)
 	{
-		effects[currIdx++] = "familiar";
+		special[currIdx++] = "familiar";
 	}
 
 	if (it.spleen > 0)
 	{
-		effects[currIdx++] = "spleen";
+		special[currIdx++] = "spleen";
 	}
 
 	string itemName = it.name.to_lower_case();
 
 	if (itemName.contains_text("green") || itemName.contains_text("luck"))
 	{
-		effects[currIdx++] = "clover";
+		special[currIdx++] = "clover";
 	}
 
 	if (itemName.contains_text("milk") || itemName.contains_text("cheese"))
 	{
-		effects[currIdx++] = "cheese";
+		special[currIdx++] = "cheese";
 	}
 
 	if (itemName.contains_text("star") || itemName.contains_text("dot"))
 	{
-		effects[currIdx++] = "star";
+		special[currIdx++] = "star";
 	}
 
 	if (itemName.contains_text("cloak"))
 	{
-		effects[currIdx++] = "mimic";
+		special[currIdx++] = "mimic";
 	}
 
-	return effects;
+	return special;
+}
+
+// TODO
+effect [int] GetPossibleEffects()
+{
+	effect [int] result;
+	foreach ef in $effects[]
+	{
+		result[to_int(ef)] = ef;
+	}
+	return result;
 }
 
 buffer ReplaceItems(buffer page)
@@ -100,20 +117,20 @@ buffer ReplaceItems(buffer page)
 		item it = itemId.to_item();
 		int sellPrice = it.autosell_price();
 		int charLen = items.group(4).length();
-		string[int] specialEffects = CheckItemSpecialEffects(it);
+		string[int] specialPizza = CheckItemSpecialPizza(it);
 		string innerData = "data-price="+sellPrice+" data-len="+charLen;
 
-		string effectsString;
+		string specialPizzaString;
 		
-		foreach id, eff in specialEffects
+		foreach id, eff in specialPizza
 		{
-			effectsString += ", " + eff;
-			innerData += " effect" + id + "=" + eff;
+			specialPizzaString += ", " + eff;
+			innerData += " special" + id + "=" + eff;
 		}
 		
 		string replacement = ItemReplacementPre + innerData + ItemReplacementInner + 
 			sellPrice + " Meat, " + 
-			charLen + " letters" + effectsString + ItemReplacementPos;
+			charLen + " letters" + specialPizzaString + ItemReplacementPos;
 		
 		items.append_replacement(out, replacement);
 	}
@@ -138,7 +155,7 @@ buffer AddSorting(buffer page)
 buffer RepositionOven(buffer page)
 {
 	string ovenRegex = "<div id=\"pizzaingredients\" style=\"background-image: url\\(https://s3.amazonaws.com/images.kingdomofloathing.com/otherimages/horadricoven_large.gif\\); width:200px; height: 200px; position: relative; margin-left: 30px\">";
-	string ovenReplacement = "<div id=\"pizzaingredients\" style=\"background-image: url(https://s3.amazonaws.com/images.kingdomofloathing.com/otherimages/horadricoven_large.gif); width:550px; height: 200px; position: relative; margin-left: 30px; background-repeat: no-repeat; background-position: left;\">";
+	string ovenReplacement = "<div id=\"pizzaingredients\" style=\"background-image: url(https://s3.amazonaws.com/images.kingdomofloathing.com/otherimages/horadricoven_large.gif); width:550px; position: relative; margin-left: 30px; background-repeat: no-repeat; background-position: left top;\">";
 
 	matcher oven = create_matcher(ovenRegex, page);
 
@@ -151,13 +168,38 @@ buffer AddCustomText(buffer page)
 {
 	string INSIDE_THE_BOX = "<script src=\"PizzaCubeGUI.js\"></script>";
 	
-	string PlaceToAdd = "</div><input type=\"hidden\" value=\"\" id=\"pizza\" name=\"pizza\" />";
-	string TextReplacement = " <div id=\"CubeInfoBox\" style=\"width:350px; height:200px; margin-left:230px; overflow:hidden; text-align: left;\">"+INSIDE_THE_BOX+"</div></div><input type=\"hidden\" value=\"\" id=\"pizza\" name=\"pizza\" />";
+	string placeToAdd = "</div><input type=\"hidden\" value=\"\" id=\"pizza\" name=\"pizza\" />";
+	string textReplacement = "<div id=\"CubeInfoBox\" style=\"width:350px; margin-left:230px; overflow:hidden; text-align: left;\">"+INSIDE_THE_BOX+"</div></div><input type=\"hidden\" value=\"\" id=\"pizza\" name=\"pizza\" />";
 
-	matcher place = create_matcher(PlaceToAdd, page);
+	matcher place = create_matcher(placeToAdd, page);
 
 	buffer out;
-	out.append(place.replace_first(TextReplacement));
+	out.append(place.replace_first(textReplacement));
+	return out;
+}
+
+buffer AddPossibleEffects(buffer page)
+{
+	string placeToAdd = "<input type=\"submit\" value=\"Bake Pizz";
+	string replacementPre = "<select id=\"effectList\">";
+	string effectList = "";
+	string replacementPos = "</select><button type=\"button\" class=\"button\" id=\"effectHelp\">?</button><br><br><input type=\"submit\" value=\"Bake Pizz";
+	
+	effect [int] effects = GetPossibleEffects();
+	
+	sort effects by ("" + value);
+	
+	foreach id, eff in effects
+	{
+		effectList += "<option id=\"" + to_int(eff) + "\" descId=\""+ eff.descid + "\">"+eff+"</option>";
+	}
+	
+	matcher place = create_matcher(placeToAdd, page);
+	
+	effectList = effectList.replace_string("$","\\$");
+	
+	buffer out;
+	out.append(place.replace_first(replacementPre + effectList + replacementPos));
 	return out;
 }
 
@@ -169,6 +211,7 @@ buffer ParsePage(buffer page)
 	out = AddSorting(out);
 	out = RepositionOven(out);
 	out = AddCustomText(out);
+	out = AddPossibleEffects(out);
 
 	return out;
 }
@@ -176,14 +219,7 @@ buffer ParsePage(buffer page)
 void handleRelayRequest()
 {
     buffer page_text = visit_url();
-
-	// Just to save an original copy	
-	//buffer [int] map;
-	//map[0] = page_text;
-	//map_to_file(map, "PizzaCubeExample.html");
-	
 	buffer out_page_text = ParsePage(page_text);
-	
 	write(out_page_text);
 }
 
