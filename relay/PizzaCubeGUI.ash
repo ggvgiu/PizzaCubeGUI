@@ -10,6 +10,7 @@
 // DONE Show x letters for next adventure
 // DONE Better layout, adapt to size of frame, unhardcode pixel sizes
 // DONE List, predict effects
+// DONE Filter out letters for choosing the effect
 
 // TODO Parse to possible effects
 // TODO Put magnifying glass icon for effect description
@@ -17,7 +18,6 @@
 // TODO Enable/disable
 
 // TODO Add bake log with pizza info
-// TODO Filter out letters for choosing the effect
 // TODO PRO Remember pizza you already baked or some other way of favoriting them and make them again with one click
 
 item [int] _familiarHatchlings;

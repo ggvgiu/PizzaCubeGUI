@@ -163,6 +163,8 @@ function ($)
 			optionsArray.reverse();
 		}
 
+		console.log("Resort " + sort + " filter " + $('#searchInput').val() + " 1st letter " +  $('#firstLetterInput').val() + " rev " + sortReverse);
+
 		var filteredArray = optionsArray.filter(FilterCall);
 		var filteredLen = filteredArray.length;
 
@@ -339,10 +341,13 @@ function ($)
 		sort = "alpha";
 		sortReverse = false;
 
+		$('#searchInput').val("");
+		$('#firstLetterInput').val("");
+
 		RestoreOriginalOptions();
-		ReSort();
 		updateInterface();
 		updateSortInterface();
+		ReSort();
 	});
 	
 	$('#adding').click(
