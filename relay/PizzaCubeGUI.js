@@ -76,6 +76,7 @@ function ($)
 	var sort = "alpha";
 	var sortReverse = false;
 	var allEffects = [];
+	var allOptions = [];
 	
 	$('#effectList option').each(
 		function()
@@ -83,6 +84,22 @@ function ($)
 			allEffects.push(this);
 		}
 	);
+
+	$('#pizzaoptions option').each(
+		function()
+		{
+			allOptions.push(this);
+		}
+	);
+
+	function FilterCall(option)
+	{
+		var text = option.innerHTML.toLowerCase();
+		var search = $('#searchInput').val().toLowerCase();
+		var result = text.includes(search);
+		var firstLetter = $('#firstLetterInput').val().toLowerCase();
+		return result && text.startsWith(firstLetter);
+	}
 
 	function ReSort()
 	{
@@ -119,12 +136,13 @@ function ($)
 
 		var optionsSelect = document.getElementById("pizzaoptions");
 		var selected = optionsSelect.value;
-		var len = optionsSelect.length;
+		var optionsSelectLen = optionsSelect.length;
+		var len = allOptions.length;
 		var optionsArray = [];
 
 		for (var i = 0; i < len; i++)
 		{
-			optionsArray.push(optionsSelect.item(i));
+			optionsArray.push(allOptions[i]);
 		}
 
 		optionsArray.sort(sortingFunc);
@@ -133,20 +151,34 @@ function ($)
 			optionsArray.reverse();
 		}
 
-		for (var i = 0; i < len; i++)
+		var filteredArray = optionsArray.filter(FilterCall);
+		var filteredLen = filteredArray.length;
+
+		for (var i = 0; i < optionsSelectLen; i++)
 		{
-			optionsSelect.remove(optionsArray[i]);
+			optionsSelect.remove(0);
 		}
 
-		for (var i = 0; i < len; i++)
+		for (var i = 0; i < filteredLen; i++)
 		{
-			optionsSelect.add(optionsArray[i]);
+			optionsSelect.add(filteredArray[i]);
 		}
 
-		optionsSelect.selectedOption = selected;
+		optionsSelect.selectedOption = 0;
 
 		updateSortInterface();
 	}
+
+	function filterByText(textbox) 
+	{
+		$(textbox).bind('change keyup', function() 
+		{
+			ReSort();
+		});
+	};
+	
+	filterByText($('#searchInput'));
+	filterByText($('#firstLetterInput'));
 
 	function updateEffectListWithEffects(validEffects)
 	{
@@ -385,7 +417,7 @@ function ($)
 			eff(descId);
 		}
 	);
-	
+
 	updateInterface();
 	updateSortInterface();
 });

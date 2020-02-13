@@ -12,6 +12,7 @@
 // DONE List, predict effects
 
 // TODO Parse to possible effects
+// TODO Put magnifying glass icon for effect description
 
 // TODO Enable/disable
 
@@ -143,7 +144,12 @@ buffer ReplaceItems(buffer page)
 buffer AddSorting(buffer page)
 {
 	string addPlace = "<input type=\"button\" value=\"Add\" class=\"button\" id=\"adding\" />";
-	string replaced = "<input type=\"button\" value=\"Add\" class=\"button\" id=\"adding\" /><p align=\"right\">Sort: <button type=\"button\" class=\"button\" id=\"sort-alpha\"></button><button type=\"button\" class=\"button\" id=\"sort-price\"></button><button type=\"button\" class=\"button\" id=\"sort-letter\"></button></p>";
+	string replaced = "<input type=\"button\" value=\"Add\" class=\"button\" id=\"adding\" /><br>" +
+					"<div align=\"right\">" +
+					"Starts With: <input type=\"text\" id=\"firstLetterInput\" minlength=\"0\" maxlength=\"1\" size=\"2\">" +
+					" Filter: <input type=\"text\" id=\"searchInput\"><br>" +
+					"Sort: <button type=\"button\" class=\"button\" id=\"sort-alpha\"></button><button type=\"button\" class=\"button\" id=\"sort-price\"></button><button type=\"button\" class=\"button\" id=\"sort-letter\"></button><br>" + 
+					"</div><br>";
 
 	matcher addButton = create_matcher(addPlace, page);
 
