@@ -76,6 +76,7 @@ function ($)
 	var sort = "alpha";
 	var sortReverse = false;
 	var allEffects = [];
+	var originalOptions = [];
 	var allOptions = [];
 	
 	$('#effectList option').each(
@@ -85,18 +86,23 @@ function ($)
 		}
 	);
 
-	function RefreshOptions()
+	$('#pizzaoptions option').each(
+		function()
+		{
+			originalOptions.push(this);
+		}
+	);
+
+	function RestoreOriginalOptions()
 	{
 		allOptions = [];
-		$('#pizzaoptions option').each(
+		$(originalOptions).each(
 			function()
 			{
 				allOptions.push(this);
 			}
-		);
+		)
 	}
-
-	
 
 	function FilterCall(option)
 	{
@@ -260,8 +266,6 @@ function ($)
 	
 	function updateInterface()
 	{
-		RefreshOptions();
-
 		var totalPrice = 0;
 		var totalLen = 0;
 		
@@ -335,6 +339,8 @@ function ($)
 		sort = "alpha";
 		sortReverse = false;
 
+		RestoreOriginalOptions();
+		ReSort();
 		updateInterface();
 		updateSortInterface();
 	});
@@ -346,6 +352,19 @@ function ($)
 		var val = opt.text().replace(/ \(\d+\)$/, '');
 		var len = opt.attr('data-len');
 		var price = opt.attr('data-price');
+		var count = opt.attr('data-qty');
+
+		if (count == 1)
+		{
+			for (var i = 0; i < allOptions.length; i++)
+			{
+				if (allOptions[i] == opt)
+				{
+					allOptions.remove(i);
+					break;
+				}
+			}
+		}
 
 		for (var i = 0; i < 7; i++)
 		{
@@ -426,6 +445,7 @@ function ($)
 		}
 	);
 
+	RestoreOriginalOptions();
 	updateInterface();
 	updateSortInterface();
 });
