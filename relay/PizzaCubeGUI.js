@@ -85,12 +85,18 @@ function ($)
 		}
 	);
 
-	$('#pizzaoptions option').each(
-		function()
-		{
-			allOptions.push(this);
-		}
-	);
+	function RefreshOptions()
+	{
+		allOptions = [];
+		$('#pizzaoptions option').each(
+			function()
+			{
+				allOptions.push(this);
+			}
+		);
+	}
+
+	
 
 	function FilterCall(option)
 	{
@@ -254,6 +260,8 @@ function ($)
 	
 	function updateInterface()
 	{
+		RefreshOptions();
+
 		var totalPrice = 0;
 		var totalLen = 0;
 		
