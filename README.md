@@ -14,9 +14,9 @@ Features:
  - Predictions for possible effects
  - Filtering by search string and first letter
  - Ordering by meat price, letter count, alphabetical, all reversible
+ - CLI log of consumed pizza ingredients and resulting effect / adventure gain
 
 Projected:
- - CLI log of consumed pizza ingredients and resulting effect / adventure gain
  - Enable / disable
  - Interface improvements
  - Effects of note suggestions
