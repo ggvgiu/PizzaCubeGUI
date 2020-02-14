@@ -163,7 +163,7 @@ function ($)
 			optionsArray.reverse();
 		}
 
-		console.log("Resort " + sort + " filter " + $('#searchInput').val() + " 1st letter " +  $('#firstLetterInput').val() + " rev " + sortReverse);
+		//console.log("Resort " + sort + " filter " + $('#searchInput').val() + " 1st letter " +  $('#firstLetterInput').val() + " rev " + sortReverse);
 
 		var filteredArray = optionsArray.filter(FilterCall);
 		var filteredLen = filteredArray.length;
@@ -194,7 +194,7 @@ function ($)
 	filterByText($('#searchInput'));
 	filterByText($('#firstLetterInput'));
 
-	function updateEffectListWithEffects(validEffects)
+	function updateEffectListWithEffects(validEffects, initials)
 	{
 		var effectList = document.getElementById("effectList");
 		var effectListOptions = [];
@@ -214,13 +214,26 @@ function ($)
 		{
 			effectList.add(validEffects[i]);
 		}
+
+		var effectString = "Matches:" + validEffects.length + ",Initials considered:[" + initials + "]";
+		if (validEffects.length > 5)
+		{
+			var effectString = effectString + "Too many matches!";
+		}
+		else
+		{
+			validEffects.forEach(element => {
+				effectString = effectString + ",Effect:" + element.text + " Id:" + element.id;
+			});
+		}
+		$('#pizzaEffect').val(effectString);
 	}
 
 	function updateEffectList(len)
 	{
 		if (len <= 0)
 		{
-			updateEffectListWithEffects(allEffects);
+			updateEffectListWithEffects(allEffects, "");
 			return;
 		}
 		
@@ -249,7 +262,7 @@ function ($)
 			return;
 		}
 		
-		updateEffectListWithEffects(validEffects);
+		updateEffectListWithEffects(validEffects, initial);
 	}
 
 	function updateSortInterface()
@@ -265,7 +278,71 @@ function ($)
 		var sortLetter = document.getElementById("sort-letter");
 		sortLetter.innerHTML = sort == "letter" ? "Letters " + sortReverseStr : "Letters";
 	}
-	
+
+	function updateEffectTurnsInterface(totalPrice)
+	{
+		var turns = PriceToTurns(totalPrice);
+		var priceForNextTurn = PriceToTurnIncrease(totalPrice);
+		var priceForMaxTurns = (10000 - totalPrice);
+
+		var valueTurns = document.getElementById("valueTurns");
+		valueTurns.innerHTML = turns;
+
+		var valueMeat = document.getElementById("valueMeat");
+		valueMeat.innerHTML = totalPrice;
+
+		var valueMeatLeftToMax = document.getElementById("valueMeatLeftToMax");
+		valueMeatLeftToMax.innerHTML = priceForMaxTurns;
+
+		var valueMeatLeftToUp = document.getElementById("valueMeatLeftToUp");
+		valueMeatLeftToUp.innerHTML = priceForNextTurn;
+
+		$('#pizzaTurn').val(turns);
+	}
+
+	function updateAdventureInterface(totalLen)
+	{
+		var adventures = LenToAdventures(totalLen);
+		var lenToNextAdventure = LenToAdvIncrease(totalLen);
+		var lenToMaxAdventures = (145 - totalLen);
+
+		var valueAdv = document.getElementById("valueAdv");
+		valueAdv.innerHTML = adventures;
+
+		var valueLetters = document.getElementById("valueLetters");
+		valueLetters.innerHTML = totalLen;
+		
+		var valueLettersLeftToUp = document.getElementById("valueLettersLeftToUp");
+		valueLettersLeftToUp.innerHTML = lenToNextAdventure;
+
+		var valueLettersLeftToMax = document.getElementById("valueLettersLeftToMax");
+		valueLettersLeftToMax.innerHTML = lenToMaxAdventures;
+
+		$('#pizzaAdv').val(adventures);
+	}
+
+	function updateSpecialPizzaInterface()
+	{
+		var specialPizza = document.getElementById("specialPizza");
+		var specialPizzaText = "none";
+		if (special.length == 1)
+		{
+			specialPizzaText = "<span style=\"color:DodgerBlue;\">"+special[0]+"</span>";
+		}
+		else if (special.length > 1)
+		{
+			specialPizzaText = "<span style=\"color:Tomato\">";
+			for (var i = 0; i < special.length; i++)
+			{
+				specialPizzaText += special[i] + " ";
+			}
+			specialPizzaText += "</span>";
+		}
+		specialPizza.innerHTML = specialPizzaText;
+
+		$('#pizzaSpecial').val(specialPizzaText);
+	}
+
 	function updateInterface()
 	{
 		var totalPrice = 0;
@@ -288,47 +365,9 @@ function ($)
 		}
 		
 		updateEffectList(letters.length);
-
-		var specialPizza = document.getElementById("specialPizza");
-		var specialPizzaText = "none";
-		if (special.length == 1)
-		{
-			specialPizzaText = "<span style=\"color:DodgerBlue;\">"+special[0]+"</span>";
-		}
-		else if (special.length > 1)
-		{
-			specialPizzaText = "<span style=\"color:Tomato\">";
-			for (var i = 0; i < special.length; i++)
-			{
-				specialPizzaText += special[i] + " ";
-			}
-			specialPizzaText += "</span>";
-		}
-		specialPizza.innerHTML = specialPizzaText;
-
-		var valueAdv = document.getElementById("valueAdv");
-		valueAdv.innerHTML = LenToAdventures(totalLen);
-
-		var valueLetters = document.getElementById("valueLetters");
-		valueLetters.innerHTML = totalLen;
-		
-		var valueLettersLeftToUp = document.getElementById("valueLettersLeftToUp");
-		valueLettersLeftToUp.innerHTML = LenToAdvIncrease(totalLen);
-
-		var valueLettersLeftToMax = document.getElementById("valueLettersLeftToMax");
-		valueLettersLeftToMax.innerHTML = (145 - totalLen);
-
-		var valueTurns = document.getElementById("valueTurns");
-		valueTurns.innerHTML = PriceToTurns(totalPrice);
-
-		var valueMeat = document.getElementById("valueMeat");
-		valueMeat.innerHTML = totalPrice;
-
-		var valueMeatLeftToMax = document.getElementById("valueMeatLeftToMax");
-		valueMeatLeftToMax.innerHTML = (10000 - totalPrice);
-
-		var valueMeatLeftToUp = document.getElementById("valueMeatLeftToUp");
-		valueMeatLeftToUp.innerHTML = PriceToTurnIncrease(totalPrice);
+		updateAdventureInterface(totalLen);
+		updateEffectTurnsInterface(totalPrice);
+		updateSpecialPizzaInterface();
 	}
 	
 	$('#empty').click(

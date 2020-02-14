@@ -11,13 +11,15 @@
 // DONE Better layout, adapt to size of frame, unhardcode pixel sizes
 // DONE List, predict effects
 // DONE Filter out letters for choosing the effect
+// DONE Add bake log with pizza info
 
 // TODO Parse to possible effects
 // TODO Put magnifying glass icon for effect description
 
 // TODO Enable/disable
 
-// TODO Add bake log with pizza info
+// TODO Suggest pizzas: STON, ULT*, others? Could check active effects and parse to get alternatives for extra bonuses as well
+
 // TODO PRO Remember pizza you already baked or some other way of favoriting them and make them again with one click
 
 item [int] _familiarHatchlings;
@@ -172,10 +174,14 @@ buffer RepositionOven(buffer page)
 
 buffer AddCustomText(buffer page)
 {
-	string INSIDE_THE_BOX = "<script src=\"PizzaCubeGUI.js\"></script>";
-	
 	string placeToAdd = "</div><input type=\"hidden\" value=\"\" id=\"pizza\" name=\"pizza\" />";
-	string textReplacement = "<div id=\"CubeInfoBox\" style=\"width:350px; margin-left:230px; overflow:hidden; text-align: left;\">"+INSIDE_THE_BOX+"</div></div><input type=\"hidden\" value=\"\" id=\"pizza\" name=\"pizza\" />";
+	string textReplacement = "<div id=\"CubeInfoBox\" style=\"width:350px; margin-left:230px; overflow:hidden; text-align: left;\">"+
+							"<script src=\"PizzaCubeGUI.js\"></script>"+"</div></div>"+
+							"<input type=\"hidden\" value=\"\" id=\"pizza\" name=\"pizza\" />" +
+							"<input type=\"hidden\" value=\"\" id=\"pizzaAdv\" name=\"pizzaAdv\" />" +
+							"<input type=\"hidden\" value=\"\" id=\"pizzaTurn\" name=\"pizzaTurn\" />" +
+							"<input type=\"hidden\" value=\"\" id=\"pizzaSpecial\" name=\"pizzaSpecial\" />" +
+							"<input type=\"hidden\" value=\"\" id=\"pizzaEffect\" name=\"pizzaEffect\" />";
 
 	matcher place = create_matcher(placeToAdd, page);
 
@@ -224,6 +230,15 @@ buffer ParsePage(buffer page)
 
 void handleRelayRequest()
 {
+	print("Pizza Cube");
+
+	string [string] form_fields = form_fields();
+
+	foreach key, value in form_fields
+	{
+		print(key + " => " + value);
+	}
+
     buffer page_text = visit_url();
 	buffer out_page_text = ParsePage(page_text);
 	write(out_page_text);
