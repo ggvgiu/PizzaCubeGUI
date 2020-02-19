@@ -1,3 +1,5 @@
+// #Lacey Jones's Pizza Cube GUI
+
 // DONE Inject JS 
 // DONE Keep track of what's in the cube
 // DONE Sum character lengths and sell prices
@@ -12,15 +14,53 @@
 // DONE List, predict effects
 // DONE Filter out letters for choosing the effect
 // DONE Add bake log with pizza info
-
-// TODO Parse to possible effects
-// TODO Put magnifying glass icon for effect description
+// DONE Parse to possible effects
 
 // TODO Enable/disable
-
+// TODO Put magnifying glass icon for effect description
 // TODO Suggest pizzas: STON, ULT*, others? Could check active effects and parse to get alternatives for extra bonuses as well
-
 // TODO PRO Remember pizza you already baked or some other way of favoriting them and make them again with one click
+// TODO PRO 4 Dropdowns, predict pizza before even start the baking process
+// Additional pizzaGUI feature requests:
+// -Listing out the inserted ingredients, their letters, and their traits all in one spot for easier viewing of what can be swapped for more letters/autosell/ .etc
+// -Some sort of indicator for when there's only one possible effect given, like with the special trait indicator
+
+// Stolen from Ezandora's genie relay script, maybe mafia coders could incorporate a better way to check this (like effect.isWishable, effect.isAvatarPotion, things like that)
+boolean [effect] __genie_invalid_effects = $effects[jukebox hero,Juicy Boost,Meteor Showered,Steely-eyed squint,Blue Eyed Devil,Cereal Killer,Nearly All-Natural,Amazing,Throwing some shade,A rose by any other material,Gaze of the Gazelle,East of Eaten,Robot Friends,Smart Drunk,Margamergency,Pajama Party,Rumpel-Pumped,Song of Battle,Song of Solitude,Buy!\  Sell!\  Buy!\  Sell!,eldritch attunement,The Inquisitor's unknown effect,Filthworm Drone Stench,Filthworm Guard Stench,Filthworm Larva Stench,Green Peace,Red Menace,Video... Games?,things man was not meant to eat,Whitesloshed,thrice-cursed,bendin' hell,Synthesis: Hot,Synthesis: Cold,Synthesis: Pungent,Synthesis: Scary,Synthesis: Greasy,Synthesis: Strong,Synthesis: Smart,Synthesis: Cool,Synthesis: Hardy,Synthesis: Energy,Synthesis: Greed,Synthesis: Collection,Synthesis: Movement,Synthesis: Learning,Synthesis: Style,The Good Salmonella,Giant Growth,Lovebotamy,Open Heart Surgery,Wandering Eye Surgery,gar-ish,Puissant Pressure,Perspicacious Pressure,Pulchritudinous Pressure,It's Good To Be Royal!,The Fire Inside,Puzzle Champ,The Royal We,Hotform,Coldform,Sleazeform,Spookyform,Stenchform,A Hole in the World,Bored With Explosions,thanksgetting,Barrel of Laughs,Beer Barrel Polka,Superdrifting,Covetin' Drunk,All Wound Up,Driving Observantly,Driving Waterproofly,Bow-Legged Swagger,First Blood Kiwi,You've Got a Stew Going!,Shepherd's Breath,Of Course It Looks Great,Doing The Hustle,Fortune of the Wheel,Shelter of Shed,Hot Sweat,Cold Sweat,Rank Sweat,Black Sweat,Flop Sweat,Mark of Candy Cain,Black Day,What Are The Odds!?,Dancin' Drunk, School Spirited,Muffled,Sour Grapes,Song of Fortune,Pork Barrel,Ashen,Brooding,Purple Tongue,Green Tongue,Orange Tongue,Red Tongue,Blue Tongue,Black Tongue,Cupcake of Choice,The Cupcake of Wrath,Shiny Happy Cupcake,Your Cupcake Senses Are Tingling,Tiny Bubbles in the Cupcake,Broken Heart,Fiery Heart,Cold Hearted,Sweet Heart,Withered Heart,Lustful Heart,Pasta Eyeball,Cowlick,It's Ridiculous,Dangerous Zone Song,Tiffany's Breakfast,Flashy Dance Song,Pet Shop Song,Dark Orchestral Song,Bounty of Renenutet,Octolus Gift,Magnetized Ears,Lucky Struck,Drunk and Avuncular,Ministrations in the Dark,Record Hunger,SuperStar,Everything Looks Blue,Everything Looks Red,Everything Looks Yellow,Snow Fortified,Bubble Vision,High-Falutin',Song of Accompaniment,Song of Cockiness,Song of the Glorious Lunch,Song of the Southern Turtle,Song of Sauce,Song of Bravado,Song of Slowness,Song of Starch,Song of the North,It's a Good Life!,I'll Have the Soup,Why So Serious?,&quot;The Disease&quot;,Unmuffled,Overconfident,Shrieking Weasel,Biker Swagger,Punchable Face,ChibiChanged&trade;,Avatar of She-Who-Was,Behind the Green Curtain,Industrially Frosted,Mer-kinkiness,Hotcaked,[1553]Slicked-Back Do,Eggscitingly Colorful,Party on Your Skin,Blessing of the Spaghetto,Force of Mayo Be With You,Ear Winds,Desenfantasmada,Skull Full of Hot Chocolate,Hide of Sobek,Wassailing You,Barrel Chested,Mimeoflage,Tainted Love Potion,Avatar of the Storm Tortoise,Fortunate\, Son,Avatar of the War Snapper,Faerie Fortune,Heroic Fortune,Fantasy Faerie Blessing,Brewed Up,Poison For Blood,Fantastical Health,Spirit of Galactic Unity,Inner Elf,The Best Hair You've Ever Had,Hardened Sweatshirt,Yeast-Hungry,More Mansquito Than Man,Spiced Up,Warlock\, Warstock\, and Warbarrel,Tomes of Opportunity,Temporary Blindness,Rolando's Rondo of Resisto,Shielded Unit,Mist Form]; //'
+//Works: Driving Wastefully, Driving Stealthily, rest untested
+
+boolean [string] __genie_invalid_effect_strings = $strings[Double Negavision, Gettin' the Goods,Moose-Warmed Belly,Crimbeau'd,Haunted Liver,Bats Form]; //' because errors on older versions
+
+boolean effectIsAvatarPotion(effect e)
+{
+	return e.string_modifier("Avatar") != "";
+}
+
+effect [int] GetPossibleEffects()
+{
+	effect [int] result;
+
+	boolean [effect] additional_invalid_effects;
+	foreach s in __genie_invalid_effect_strings
+	{
+		effect e = s.to_effect();
+		if (e != $effect[none])
+		{
+			additional_invalid_effects[e] = true;
+		}
+	}
+
+	foreach ef in $effects[]
+	{
+		if (__genie_invalid_effects contains ef) continue;
+		if (additional_invalid_effects contains ef) continue;
+		if (ef.effectIsAvatarPotion()) continue;
+		
+		result[to_int(ef)] = ef;
+	}
+
+	return result;
+}
 
 item [int] _familiarHatchlings;
 
@@ -88,17 +128,6 @@ string [int] CheckItemSpecialPizza(item it)
 	}
 
 	return special;
-}
-
-// TODO
-effect [int] GetPossibleEffects()
-{
-	effect [int] result;
-	foreach ef in $effects[]
-	{
-		result[to_int(ef)] = ef;
-	}
-	return result;
 }
 
 buffer ReplaceItems(buffer page)
@@ -230,15 +259,6 @@ buffer ParsePage(buffer page)
 
 void handleRelayRequest()
 {
-	print("Pizza Cube");
-
-	string [string] form_fields = form_fields();
-
-	foreach key, value in form_fields
-	{
-		print(key + " => " + value);
-	}
-
     buffer page_text = visit_url();
 	buffer out_page_text = ParsePage(page_text);
 	write(out_page_text);

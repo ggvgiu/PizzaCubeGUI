@@ -325,9 +325,11 @@ function ($)
 	{
 		var specialPizza = document.getElementById("specialPizza");
 		var specialPizzaText = "none";
+		var specialPizzaLog = "none";
 		if (special.length == 1)
 		{
 			specialPizzaText = "<span style=\"color:DodgerBlue;\">"+special[0]+"</span>";
+			specialPizzaLog = special[0];
 		}
 		else if (special.length > 1)
 		{
@@ -335,12 +337,13 @@ function ($)
 			for (var i = 0; i < special.length; i++)
 			{
 				specialPizzaText += special[i] + " ";
+				specialPizzaLog += special[i] + " ";
 			}
 			specialPizzaText += "</span>";
 		}
 		specialPizza.innerHTML = specialPizzaText;
 
-		$('#pizzaSpecial').val(specialPizzaText);
+		$('#pizzaSpecial').val(specialPizzaLog);
 	}
 
 	function updateInterface()
