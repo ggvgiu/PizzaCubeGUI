@@ -5,13 +5,6 @@ void main()
 
 	string [string] form_fields = form_fields();
 
-	foreach key, value in form_fields
-	{
-		print(key + " => " + value);
-		//action => makepizza
-		//pizza => 277,8358,2588,6107
-	}
-
 	string[int] pizzaSplit;
 	string[int] effectSplit;
 	string pizza = form_fields["pizza"];

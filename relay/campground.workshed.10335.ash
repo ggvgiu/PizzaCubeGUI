@@ -3,8 +3,11 @@ import "relay/PizzaCubeGUI.ash";
 void main()
 {
 	if (get_campground()[$item[Diabolic pizza cube]] > 0)
-		handleRelayRequest();
+	{
+		runMain();
+	}
 	else
+	{
 		write(visit_url());
-
+	}
 }
