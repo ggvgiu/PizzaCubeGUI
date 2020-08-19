@@ -27,6 +27,11 @@ function ($)
 		return Math.min(100, Math.max(5, Math.round(Math.sqrt(price))));
 	}
 
+	function StatsPerSize(size)
+	{
+		return Math.min(150, size * 10);
+	}
+
 	function PriceForTurns(turns)
 	{
 		var limit = turns - .5;
@@ -78,7 +83,11 @@ function ($)
 
 	function updateStats(full, drunk)
 	{
-		// TODO Interface as well, and log
+		var mus = StatsPerSize(full);
+		var mox = StatsPerSize(drunk);
+
+		$('#valueMus').html(mus);
+		$('#valueMox').html(mox);
 	}
 
 	function updateSpecial(special)
@@ -177,7 +186,6 @@ function ($)
 
 	function updatePredictions(currentIngredients)
 	{
-
 		var letterCount = 0;
 		var price = 0;
 		var full = 0;
@@ -546,6 +554,7 @@ function ($)
 					if (opt.text().length <= i)
 					{
 						current = '';
+						broken = true;
 					}
 					else
 					{
@@ -585,6 +594,96 @@ function ($)
 		);
 	}
 
+	function installMenuListener(value)
+	{
+		var button = "#carte-" + value;
+		var items = "#menu-" + value;
+
+		$(button).click(
+			function()
+			{
+				var current = $(items).css("display");
+
+				var next = 'none';
+				var baseColor = "#000";
+				var backColor = "#FFF";
+
+				if (current == 'none')
+				{
+					next = 'block';
+					baseColor = "#FFF";
+					backColor = "#000";
+				}
+
+				$(items).css("display", next);
+				$(button).css("color", baseColor);
+				$(button).css("background-color", backColor);
+			}
+		);
+	}
+
+	function installMenuItemListener(idx)
+	{
+		var button = '#menu-item-' + idx;
+		var initials = $(button).val();
+
+		$(button).click(
+			function()
+			{
+				var broken = false;
+				for (var i = 0; i < 4; i++)
+				{
+					var current;
+
+					if (initials.length <= i)
+					{
+						current = '';
+						broken = true;
+					}
+					else
+					{
+						current = initials[i];
+					}
+
+					if (current == ' ')
+					{
+						broken = true;
+					}
+					
+					if (broken)
+					{
+						$('#letter-'+i).val('');
+					}
+					else
+					{
+						$('#letter-'+i).val(current);
+					}
+				}
+
+				refreshAllIngredientLists();
+			}
+		);
+	}
+
+	function installMenuListeners()
+	{
+		installMenuListener("item");
+		installMenuListener("meat");
+		installMenuListener("ml");
+		installMenuListener("init");
+		installMenuListener("stat");
+		installMenuListener("ele");
+		installMenuListener("combat");
+		installMenuListener("quest");
+		installMenuListener("fam");
+		installMenuListener("more");
+
+		for (var i = 0; i < $('#menuEffectsCount').val(); i++)
+		{
+			installMenuItemListener(i);
+		}
+	}
+
 	function init()
 	{
 		$('#all-effects option').each(
@@ -605,6 +704,7 @@ function ($)
 
 		initIngredients();
 		installListeners();
+		installMenuListeners();
 		refreshAllIngredientLists();
 		triggerIngredientChange();
 	}

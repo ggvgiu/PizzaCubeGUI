@@ -2,7 +2,7 @@ import "relay/PizzaCubeGUI.ash";
 
 void main()
 {
-	if (get_campground()[$item[Diabolic pizza cube]] > 0)
+	if (get_campground()[$item[Diabolic pizza cube]] > 0 && item_amount($item[diabolic pizza]) == 0)
 	{
 		runMain();
 	}

@@ -1,36 +1,19 @@
 // #Lacey Jones's Pizza Cube GUI
 
-// DONE Inject JS 
-// DONE Keep track of what's in the cube
-// DONE Sum character lengths and sell prices
-// DONE Show this data as it's updated
-// DONE Parse the data and show final adv/effect turns
-// DONE Improve style
-// DONE Change item sorting: by price, by letter count, alphabetical
-// DONE Show possible special pizzas
-// DONE Show x meat for 1 more turn of effect instead of X meat for 100 turns
-// DONE Show x letters for next adventure
-// DONE Better layout, adapt to size of frame, unhardcode pixel sizes
-// DONE List, predict effects
-// DONE Filter out letters for choosing the effect
-// DONE Add bake log with pizza info
-// DONE Parse to possible effects
-// DONE PRO 4 Dropdowns, predict pizza before even start the baking process
-// DONE Enable/disable/change from PRO to standard
-
 // TODO Put magnifying glass icon for effect description
 // TODO PRO Suggest pizzas: STON, ULT*, others? Could check active effects and parse to get alternatives for extra bonuses as well
 // TODO PRO Remember pizza you already baked or some other way of favoriting them and make them again with one click
-// Additional pizzaGUI feature requests:
-// -Listing out the inserted ingredients, their letters, and their traits all in one spot for easier viewing of what can be swapped for more letters/autosell/ .etc
-// -Some sort of indicator for when there's only one possible effect given, like with the special trait indicator
-// Additional pizzaoven GUI stuff: each point of fullness is +10 mus substat, each point of drunk = +10 mox substat, capped at size 15 (150) per item for each
+
+// TODO PRO SAVE interface options from menu and sorting of items
+
+// TODO Lazy epic pizza (just find the best ingredients for an epic pizza and select them)
 
 ///////////////////// EFFECTS
 
 // Stolen from Ezandora's genie relay script, maybe mafia coders could incorporate a better way to check this (like effect.isWishable, effect.isAvatarPotion, things like that)
 boolean [effect] __genie_invalid_effects = $effects[jukebox hero,Juicy Boost,Meteor Showered,Steely-eyed squint,Blue Eyed Devil,Cereal Killer,Nearly All-Natural,Amazing,Throwing some shade,A rose by any other material,Gaze of the Gazelle,East of Eaten,Robot Friends,Smart Drunk,Margamergency,Pajama Party,Rumpel-Pumped,Song of Battle,Song of Solitude,Buy!\  Sell!\  Buy!\  Sell!,eldritch attunement,The Inquisitor's unknown effect,Filthworm Drone Stench,Filthworm Guard Stench,Filthworm Larva Stench,Green Peace,Red Menace,Video... Games?,things man was not meant to eat,Whitesloshed,thrice-cursed,bendin' hell,Synthesis: Hot,Synthesis: Cold,Synthesis: Pungent,Synthesis: Scary,Synthesis: Greasy,Synthesis: Strong,Synthesis: Smart,Synthesis: Cool,Synthesis: Hardy,Synthesis: Energy,Synthesis: Greed,Synthesis: Collection,Synthesis: Movement,Synthesis: Learning,Synthesis: Style,The Good Salmonella,Giant Growth,Lovebotamy,Open Heart Surgery,Wandering Eye Surgery,gar-ish,Puissant Pressure,Perspicacious Pressure,Pulchritudinous Pressure,It's Good To Be Royal!,The Fire Inside,Puzzle Champ,The Royal We,Hotform,Coldform,Sleazeform,Spookyform,Stenchform,A Hole in the World,Bored With Explosions,thanksgetting,Barrel of Laughs,Beer Barrel Polka,Superdrifting,Covetin' Drunk,All Wound Up,Driving Observantly,Driving Waterproofly,Bow-Legged Swagger,First Blood Kiwi,You've Got a Stew Going!,Shepherd's Breath,Of Course It Looks Great,Doing The Hustle,Fortune of the Wheel,Shelter of Shed,Hot Sweat,Cold Sweat,Rank Sweat,Black Sweat,Flop Sweat,Mark of Candy Cain,Black Day,What Are The Odds!?,Dancin' Drunk, School Spirited,Muffled,Sour Grapes,Song of Fortune,Pork Barrel,Ashen,Brooding,Purple Tongue,Green Tongue,Orange Tongue,Red Tongue,Blue Tongue,Black Tongue,Cupcake of Choice,The Cupcake of Wrath,Shiny Happy Cupcake,Your Cupcake Senses Are Tingling,Tiny Bubbles in the Cupcake,Broken Heart,Fiery Heart,Cold Hearted,Sweet Heart,Withered Heart,Lustful Heart,Pasta Eyeball,Cowlick,It's Ridiculous,Dangerous Zone Song,Tiffany's Breakfast,Flashy Dance Song,Pet Shop Song,Dark Orchestral Song,Bounty of Renenutet,Octolus Gift,Magnetized Ears,Lucky Struck,Drunk and Avuncular,Ministrations in the Dark,Record Hunger,SuperStar,Everything Looks Blue,Everything Looks Red,Everything Looks Yellow,Snow Fortified,Bubble Vision,High-Falutin',Song of Accompaniment,Song of Cockiness,Song of the Glorious Lunch,Song of the Southern Turtle,Song of Sauce,Song of Bravado,Song of Slowness,Song of Starch,Song of the North,It's a Good Life!,I'll Have the Soup,Why So Serious?,&quot;The Disease&quot;,Unmuffled,Overconfident,Shrieking Weasel,Biker Swagger,Punchable Face,ChibiChanged&trade;,Avatar of She-Who-Was,Behind the Green Curtain,Industrially Frosted,Mer-kinkiness,Hotcaked,[1553]Slicked-Back Do,Eggscitingly Colorful,Party on Your Skin,Blessing of the Spaghetto,Force of Mayo Be With You,Ear Winds,Desenfantasmada,Skull Full of Hot Chocolate,Hide of Sobek,Wassailing You,Barrel Chested,Mimeoflage,Tainted Love Potion,Avatar of the Storm Tortoise,Fortunate\, Son,Avatar of the War Snapper,Faerie Fortune,Heroic Fortune,Fantasy Faerie Blessing,Brewed Up,Poison For Blood,Fantastical Health,Spirit of Galactic Unity,Inner Elf,The Best Hair You've Ever Had,Hardened Sweatshirt,Yeast-Hungry,More Mansquito Than Man,Spiced Up,Warlock\, Warstock\, and Warbarrel,Tomes of Opportunity,Temporary Blindness,Rolando's Rondo of Resisto,Shielded Unit,Mist Form]; //'
 //Works: Driving Wastefully, Driving Stealthily, rest untested
+// Seems to not work: gunther than thou
 
 boolean [string] __genie_invalid_effect_strings = $strings[Double Negavision, Gettin' the Goods,Moose-Warmed Belly,Crimbeau'd,Haunted Liver,Bats Form]; //' because errors on older versions
 
@@ -55,6 +38,7 @@ effect [int] GetPossibleEffects()
 
 	foreach ef in $effects[]
 	{
+		if (ef.attributes.contains_text("nohookah")) continue;
 		if (__genie_invalid_effects contains ef) continue;
 		if (additional_invalid_effects contains ef) continue;
 		if (ef.effectIsAvatarPotion()) continue;
@@ -64,6 +48,210 @@ effect [int] GetPossibleEffects()
 
 	return result;
 }
+
+// TODO COMPLETE THESE LISTS https://docs.google.com/spreadsheets/d/1pcwFNLGE-q4T7BlpaemLgzCgj_FKdUgOGHxVgUUlkTs/edit#gid=0
+//Ones that the spreadsheet doesn't have:
+//Noncom: PRED -10%, INKE -10%
+//Sleaze: PAI* is typically superior to FIF
+
+//Possible feature requests:
+//-only inserting as many letters as necessary, CER works just as well as CERT for Certainty
+//-statgain and adv should possibly check for Pizza Lover [write as 9 advs +3, double statgain]
+
+string [effect] _itemEffects = {
+	$effect[Certainty]: "cer",
+	$effect[Thanksgot]: "than",
+	$effect[Heightened Senses]: "heig",
+	$effect[Aykrophobia]: "ay",
+	$effect[Let's Go Shopping!]: "let",
+};
+
+string [effect] _meatEffects = {
+	$effect[Sinuses For Miles]: "sinu",
+	$effect[Thanksgot]: "than",
+	$effect[Let's Go Shopping!]: "let",
+	$effect[Heightened Senses]: "heig",
+	$effect[Low on the Hog]: "low",
+	$effect[Cravin' for a Ravin']: "crav",
+	$effect[Leisurely Amblin']: "lei",
+};
+
+string [effect] _mlEffects = {
+	$effect[Polonoia]: "polo",
+	$effect[Truthful]: "trut",
+	$effect[Aykrophobia]: "ay",
+};
+
+string [effect] _initEffects = {
+	$effect[Hare-o-dynamic]: "hare",
+};
+
+string [effect] _statEffects = {
+	$effect[HGH-charged]: "hg",
+	$effect[Different Way of Seeing Things]: "dif",
+};
+
+string [effect] _elementEffects = {
+	$effect[Dirty Pear]: "dirt",
+	$effect[Painted-On Bikini]: "pai",
+	$effect[Fifty Ways to Bereave Your Lover]: "fif",
+	$effect[Gutterminded]: "gutt",
+	$effect[Cholestoriffic]: "chol",
+	$effect[Yeah, It's Just Gasoline]: "yea",
+	$effect[Staying Frosty]: "stay",
+	$effect[Bored Stiff]: "bor",
+	$effect[Sewer-Drenched]: "sew",
+};
+
+string [effect] _combatEffects = {
+	$effect[Disquiet Riot]: "disq",
+	$effect[Taunt of Horus]: "taun",
+	$effect[Waking the Dead]: "waki",
+	$effect[Lion in Ambush]: "lio",
+	$effect[Inked Well]: "inke",
+};
+
+string [effect] _questEffects = {
+	$effect[Ultrahydrated]: "ult",
+	$effect[Stone-Faced]: "ston",
+};
+
+string [effect] _famEffects = {
+	$effect[Whole Latte Love]: "who",
+	$effect[Down With Chow]: "dow",
+	$effect[Chorale of Companionship]: "chor",
+	$effect[Bureaucratized]: "bure",
+};
+
+string [effect] _moreEffects = {
+	$effect[One Very Clear Eye]: "one",
+	$effect[Action]: "acti",
+	$effect[Adrenaline Rush]: "adre",
+	$effect[Annoyed by Threats]: "anno",
+	$effect[Army of One]: "army",
+	$effect[Arresistible]: "arre",
+	$effect[Assaulted with Pepper]: "assa",
+	$effect[Bananas!]: "bana",
+	$effect[Banono]: "bano",
+	$effect[Bent Knees]: "bent",
+	$effect[Beta Carotene Overdose]: "beta",
+	$effect[Blade Rolling]: "blad",
+	$effect[Blinking Belly]: "blin",
+	$effect[Booooooze]: "booo",
+	$effect[Boschface]: "bosc",
+	$effect[Broberry Brotality]: "brob",
+	$effect[Brocolate Brostidigitation]: "broc",
+	$effect[Buff as a Baobab]: "buff",
+	$effect[Bureaucratized]: "bure",
+	$effect[Carlweather's Cantata of Confrontation]: "carl",
+	$effect[Category]: "cate",
+	$effect[Cautious Prowl]: "caut",
+	$effect[Ceaseless Snarling]: "ceas",
+	$effect[Certainty]: "cert",
+	$effect[Chihuahua Underfoot]: "chih",
+	$effect[Chorale of Companionship]: "chor",
+	$effect[Citronella Armpits]: "citr",
+	$effect[Cloak of Shadows]: "cloa",
+	$effect[Clyde's Blessing]: "clyd",
+	$effect[Cravin' for a Ravin']: "crav",
+	$effect[Crotchety, Pining]: "crot",
+	$effect[Crying, Dying]: "cryi",
+	$effect[Dexteri Tea]: "dext",
+	$effect[Different Way of Seeing Things]: "diff",
+	$effect[Dirty Pear]: "dirt",
+	$effect[Disquiet Riot]: "disq",
+	$effect[Earthen Fist]: "eart",
+	$effect[Extended Toes]: "exte",
+	$effect[Feroci Tea]: "fero",
+	$effect[Fifty Ways to Bereave Your Lover]: "fift",
+	$effect[Fightin' Drunk]: "figh",
+	$effect[Flyin' Drunk]: "flyi",
+	$effect[Fresh Scent]: "fres",
+	$effect[Frown]: "frow",
+	$effect[Glasshole]: "glas",
+	$effect[Goldentongue]: "gold",
+	$effect[Grimace]: "grim",
+	$effect[Gristlesphere]: "gris",
+	$effect[Grrrrrrreat!]: "grrr",
+	$effect[Hagnk's Gratitude]: "hagn",
+	$effect[Having a Ball!]: "havi",
+	$effect[Hiding in Plain Sight]: "hidi",
+	$effect[Hulkien]: "hulk",
+	$effect[Incredibly Hulking]: "incr",
+	$effect[Inky Camouflage]: "inky",
+	$effect[Intuition of the God Lobster]: "intu",
+	$effect[Irritabili Tea]: "irri",
+	$effect[Jokin' Drunk]: "joki",
+	$effect[Keep Free Hate in your Heart]: "keep",
+	$effect[Kicked in the Sinuses]: "kick",
+	$effect[Knightlife]: "knig",
+	$effect[Koyaaniskumquatsi]: "koya",
+	$effect[Lapdog]: "lapd",
+	$effect[Larger]: "larg",
+	$effect[Leisurely Amblin']: "leis",
+	$effect[License to Punch]: "lice",
+	$effect[Lifted Spirits]: "lift",
+	$effect[Limber as Mortimer]: "limb",
+	$effect[Lion in Ambush]: "lion",
+	$effect[Low on the Hog]: "low",
+	$effect[Manbait]: "manb",
+	$effect[Marbles in Your Mouth]: "marb",
+	$effect[Marco Polarity]: "marc",
+	$effect[Meadulla Oblongota]: "mead",
+	$effect[Meet the Meat]: "meet",
+	$effect[Melancholy Burden]: "mela",
+	$effect[Mighty Shout]: "migh",
+	$effect[Minerva's Zen]: "mine",
+	$effect[Mitre Cut]: "mitr",
+	$effect[Morninja]: "morn",
+	$effect[Motion]: "moti",
+	$effect[Nasty, Nasty Breath]: "nast",
+	$effect[Obscuri Tea]: "obsc",
+	$effect[Orcmouth]: "orcm",
+	$effect[Para-lyzed Jaw]: "para",
+	$effect[Perfect Hair]: "perf",
+	$effect[Pharmaceutically Cool]: "phar",
+	$effect[Phoenix, Right?]: "phoe",
+	$effect[Phorcefullness]: "phor",
+	$effect[Polonoia]: "polo",
+	$effect[Predjudicetidigitation]: "pred",
+	$effect[Prince of Seaside Town]: "prin",
+	$effect[Proficient Pressure]: "prof",
+	$effect[Purity of Spirit]: "puri",
+	$effect[Racing!]: "raci",
+	$effect[Rational Thought]: "rati",
+	$effect['Roids of the Rhinoceros]: "roi",
+	$effect[Ruby-ous]: "ruby",
+	$effect[Sacr&eacute; Mental]: "sacr",
+	$effect[Salsa Satanica]: "sals",
+	$effect[Screaming! \ SCREAMING! \ AAAAAAAH!]: "scre",
+	$effect[Sensation]: "sens",
+	$effect[Sewer-Drenched]: "sewe",
+	$effect[Simulation Stimulation]: "simu",
+	$effect[Sinuses For Miles]: "sinu",
+	$effect[Sneaky Serpentine Subtlety]: "snea",
+	$effect[stats.enq]: "stat",
+	$effect[Staying Frosty]: "stay",
+	$effect[Stogied]: "stog",
+	$effect[Sucrose-Colored Glasses]: "sucr",
+	$effect[Tapped In]: "tapp",
+	$effect[Taunt of Horus]: "taun",
+	$effect[That's Just Cloud-Talk, Man]: "that",
+	$effect[Thaumodynamic]: "thau",
+	$effect[Towering Strength]: "towe",
+	$effect[Triple-Sized]: "trip",
+	$effect[Trivia Master]: "triv",
+	$effect[Truthful]: "trut",
+	$effect[Ultrahydrated]: "ultr",
+	$effect[Unbarking Dogs]: "unba",
+	$effect[Uncucumbered]: "uncu",
+	$effect[Unpopular]: "unpo",
+	$effect[Void Between the Stars]: "void",
+	$effect[Waking the Dead]: "waki",
+	$effect[WAKKA WAKKA WAKKA]: "wakk",
+	$effect[Whole Latte Love]: "whol",
+	$effect[Zomg WTF]: "zomg",
+};
 
 ///////////////////// END EFFECTS
 
@@ -255,6 +443,11 @@ void AppendInfoPanel(buffer result)
 		result.append("<span style=\"font-size:x-small\"><span id=\"valueMeatLeftToMax\">9999</span> for max turns</span>");
 		result.append("</em></p>");
 
+		result.append("<p>Stat gains:<br><em>");
+		result.append("<span style=\"font-size:small\"><span id=\"valueMus\">99999</span> mus substats</span><br>");
+		result.append("<span style=\"font-size:small\"><span id=\"valueMox\">9999</span> mox substats</span><br>");
+		result.append("</em></p>");
+
 		result.append("<p><em><b>Special pizza: <big id=\"specialPizza\"><span style=\"color:Tomato;\">spleen star combat familiar</span></big></b></em></p>");
 	
 	result.append("</div></td>");
@@ -321,6 +514,74 @@ void AppendScript(buffer result, string [int] data)
 	result.append("<script src=\"PizzaCubeGUI2.js\"></script>");
 }
 
+int _menuEffectIndex = 0;
+
+void AppendMenuEffects(buffer result, string [effect] effectList, string id)
+{
+	result.append("<div id='" + id + "' style='display: none;'>"); // Change this property to block when hidding, showing stuff!
+	result.append("<table>");
+	int col = 0;
+	foreach eff, initials in effectList
+	{
+		if (col == 0)
+		{
+			result.append("<tr>");
+		}
+
+		result.append("<td>");
+		result.append("<button class='button' title='" + eff + "' id='menu-item-" + _menuEffectIndex++ + "' value='" + initials + "'>");
+		result.append("<img src='/images/itemimages/" + eff.image + "' style='vertical-align: middle;' /></button> ");
+		result.append(eff);
+		result.append("<button class='button' style='border-style:none;font-size:10px;vertical-align:super;' onclick='eff(\"" + eff.descid + "\");'>?</button></td>");
+		col++;
+
+		if (col == 3)
+		{
+			col = 0;
+			result.append("</tr>");
+		}
+	}
+
+	if (col != 0 && effectList.length() > 0)
+	{
+		result.append("</tr>");
+	}
+
+	result.append("</table></div>");
+}
+
+void AppendMenu(buffer result)
+{
+	result.append("<link href='https://fonts.googleapis.com/css?family=Alex Brush' rel='stylesheet'>");
+	result.append("<p style=\"font-family:'Alex Brush';font-size:32px;margin-left:60px\">Menu</p>");
+	result.append("<button type=\"toggle\" class=\"button\" id=\"carte-item\" value=\"true\">Item</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-meat\" >Meat</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-ml\" >ML</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-init\" >Init</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-stat\" >Stat</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-ele\" >Elemental Dmg</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-combat\" >Combat Freq</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-quest\" >Questing</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-fam\" >Familiar</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-more\" >More</button> ");
+	result.append("<br><br>");
+
+	_menuEffectIndex = 0;
+
+	AppendMenuEffects(result, _itemEffects, "menu-item");
+	AppendMenuEffects(result, _meatEffects, "menu-meat");
+	AppendMenuEffects(result, _mlEffects, "menu-ml");
+	AppendMenuEffects(result, _initEffects, "menu-init");
+	AppendMenuEffects(result, _statEffects, "menu-stat");
+	AppendMenuEffects(result, _elementEffects, "menu-ele");
+	AppendMenuEffects(result, _combatEffects, "menu-combat");
+	AppendMenuEffects(result, _questEffects, "menu-quest");
+	AppendMenuEffects(result, _famEffects, "menu-fam");
+	AppendMenuEffects(result, _moreEffects, "menu-more");
+
+	result.append("<input type='hidden' id='menuEffectsCount' value='" + _menuEffectIndex + "'/>");
+}
+
 /// Main HTML Thing
 buffer GenerateGUI(string [int] data)
 {
@@ -332,6 +593,7 @@ buffer GenerateGUI(string [int] data)
 	AppendOverview(result, data);
 	AppendForm(result, data);
 	AppendScript(result, data);
+	AppendMenu(result);
 
 	//result.append("</center>");
 	result.append("</td></tr></tbody></table></center>");
@@ -511,15 +773,15 @@ buffer AddPossibleEffects(buffer page)
 
 buffer AddControlGui(buffer page, boolean tampered, boolean pro)
 {
-	string disableGui = "<div onclick=\"var form_data = 'relay_request=true&type=disable_gui'; var request = new XMLHttpRequest(); request.onreadystatechange = function() { if (request.readyState == 4) { if (request.status == 200) { location.reload() } } }; request.open('POST', 'PizzaCubeGUI.ash'); request.send(form_data);\" style=\"text-decoration:underline;cursor:pointer;\">Disable GUI</div>";
-	string basicGui = "<div onclick=\"var form_data = 'relay_request=true&type=enable_basic_gui'; var request = new XMLHttpRequest(); request.onreadystatechange = function() { if (request.readyState == 4) { if (request.status == 200) { location.reload() } } }; request.open('POST', 'PizzaCubeGUI.ash'); request.send(form_data);\" style=\"text-decoration:underline;cursor:pointer;\">Enable Basic GUI</div>";
-	string proGui = "<div onclick=\"var form_data = 'relay_request=true&type=enable_pro_gui'; var request = new XMLHttpRequest(); request.onreadystatechange = function() { if (request.readyState == 4) { if (request.status == 200) { location.reload() } } }; request.open('POST', 'PizzaCubeGUI.ash'); request.send(form_data);\" style=\"text-decoration:underline;cursor:pointer;\">Enable Pro GUI</div>";
+	string disableGui = "<button class='button' onclick=\"var form_data = 'relay_request=true&type=disable_gui'; var request = new XMLHttpRequest(); request.onreadystatechange = function() { if (request.readyState == 4) { if (request.status == 200) { location.reload() } } }; request.open('POST', 'PizzaCubeGUI.ash'); request.send(form_data);\" style=\"border-style:none;text-decoration:underline;cursor:pointer;\">Disable GUI</button><br>";
+	string basicGui = "<button class='button' onclick=\"var form_data = 'relay_request=true&type=enable_basic_gui'; var request = new XMLHttpRequest(); request.onreadystatechange = function() { if (request.readyState == 4) { if (request.status == 200) { location.reload() } } }; request.open('POST', 'PizzaCubeGUI.ash'); request.send(form_data);\" style=\"border-style:none;text-decoration:underline;cursor:pointer;\">Enable Basic GUI</button><br>";
+	string proGui = "<button class='button' onclick=\"var form_data = 'relay_request=true&type=enable_pro_gui'; var request = new XMLHttpRequest(); request.onreadystatechange = function() { if (request.readyState == 4) { if (request.status == 200) { location.reload() } } }; request.open('POST', 'PizzaCubeGUI.ash'); request.send(form_data);\" style=\"border-style:none;text-decoration:underline;cursor:pointer;\">Enable Pro GUI</button><br>";
 
 	string final = (tampered ? disableGui : "") + ((!tampered || pro) ? basicGui : "") + ((!tampered || !pro) ? proGui : "");
 
 	string search = "</td></tr></table></center></td></tr><tr><td height=4></td></tr></table><table";
-	string replacePre = "</td></tr></table>";
-	string replacePos = "</center></td></tr><tr><td height=4></td></tr></table><table";
+	string replacePre = "</td></tr></table><p>";
+	string replacePos = "</p></center></td></tr><tr><td height=4></td></tr></table><table";
 
 	if (pro)
 	{
