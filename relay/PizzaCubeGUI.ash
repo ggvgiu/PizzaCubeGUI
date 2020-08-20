@@ -1,14 +1,193 @@
 // #Lacey Jones's Pizza Cube GUI
 
-// TODO Put magnifying glass icon for effect description
-// TODO PRO Suggest pizzas: STON, ULT*, others? Could check active effects and parse to get alternatives for extra bonuses as well
 // TODO PRO Remember pizza you already baked or some other way of favoriting them and make them again with one click
-
 // TODO PRO SAVE interface options from menu and sorting of items
-
-// TODO Lazy epic pizza (just find the best ingredients for an epic pizza and select them)
+// TODO Lazy epic pizza (just find the best ingredients for an epic pizza and select them) (or the highest possible turn gain available)
 
 ///////////////////// EFFECTS
+
+
+///////////// MODIFIED FROM EZANDORA'S GENIE SCRIPT
+
+boolean [string] __effect_descriptions_modifier_is_percent;
+string [string] __effect_descriptions_modifier_short_description_mapping;
+
+void initialiseGenieEffectDescriptions()
+{
+	__effect_descriptions_modifier_is_percent["item drop"] = true;
+	__effect_descriptions_modifier_is_percent["booze drop"] = true;
+	__effect_descriptions_modifier_is_percent["food drop"] = true;
+	__effect_descriptions_modifier_is_percent["meat drop"] = true;
+	__effect_descriptions_modifier_is_percent["initiative"] = true;
+	__effect_descriptions_modifier_is_percent["combat rate"] = true;
+	__effect_descriptions_modifier_short_description_mapping["item drop"] = "item";
+	__effect_descriptions_modifier_short_description_mapping["meat drop"] = "meat";
+	__effect_descriptions_modifier_short_description_mapping["combat rate"] = "combat";
+	__effect_descriptions_modifier_short_description_mapping["initiative"] = "init";
+}
+
+static
+{
+	buffer [effect] __genie_saved_effect_descriptions;
+	boolean [effect][string] __modifiers_for_effect;
+	boolean [string][effect] __effects_for_modifiers;
+	boolean [effect] __effect_contains_non_constant_modifiers; //meaning, numeric_modifier() cannot be cached
+}
+
+void initialiseModifiers()
+{
+	if (__modifiers_for_effect.count() != 0) return;
+	//boolean [string] modifier_types;
+	//boolean [string] modifier_values;
+	foreach e in $effects[]
+	{
+		string string_modifiers = e.string_modifier("Modifiers");
+        if (string_modifiers == "") continue;
+        if (string_modifiers.contains_text("Avatar: ")) continue; //FIXME parse properly?
+        string [int] first_level_split = string_modifiers.split_string(", ");
+        
+        foreach key, entry in first_level_split
+        {
+        	//print_html(entry);
+            //if (!entry.contains_text(":"))
+            
+            string modifier_type;
+            string modifier_value;
+            if (entry.contains_text(": "))
+            {
+            	string [int] entry_split = entry.split_string(": ");
+                modifier_type = entry_split[0];
+                modifier_value = entry_split[1];
+            }
+            else
+            	modifier_type = entry;
+            
+            
+            string modifier_type_converted = modifier_type;
+            
+            //convert modifier_type to modifier_type_converted:
+            //FIXME is this all of them?
+            if (modifier_type_converted == "Combat Rate (Underwater)")
+            	modifier_type_converted = "Underwater Combat Rate";
+            else if (modifier_type_converted == "Experience (familiar)")
+                modifier_type_converted = "Familiar Experience";
+            else if (modifier_type_converted == "Experience (Moxie)")
+                modifier_type_converted = "Moxie Experience";
+            else if (modifier_type_converted == "Experience (Muscle)")
+                modifier_type_converted = "Muscle Experience";
+            else if (modifier_type_converted == "Experience (Mysticality)")
+                modifier_type_converted = "Mysticality Experience";
+            else if (modifier_type_converted == "Experience Percent (Moxie)")
+                modifier_type_converted = "Moxie Experience Percent";
+            else if (modifier_type_converted == "Experience Percent (Muscle)")
+                modifier_type_converted = "Muscle Experience Percent";
+            else if (modifier_type_converted == "Experience Percent (Mysticality)")
+                modifier_type_converted = "Mysticality Experience Percent";
+            else if (modifier_type_converted == "Mana Cost (stackable)")
+                modifier_type_converted = "Stackable Mana Cost";
+            else if (modifier_type_converted == "Familiar Weight (hidden)")
+                modifier_type_converted = "Hidden Familiar Weight";
+            else if (modifier_type_converted == "Meat Drop (sporadic)")
+                modifier_type_converted = "Sporadic Meat Drop";
+            else if (modifier_type_converted == "Item Drop (sporadic)")
+                modifier_type_converted = "Sporadic Item Drop";
+            
+            modifier_type_converted = modifier_type_converted.to_lower_case();
+            __modifiers_for_effect[e][modifier_type_converted] = true;
+            __effects_for_modifiers[modifier_type_converted][e] = true;
+            if (modifier_value.contains_text("[") || modifier_value.contains_text("\""))
+            	__effect_contains_non_constant_modifiers[e] = true;
+            if (modifier_type_converted ≈ "muscle percent")
+            {
+            	__modifiers_for_effect[e]["muscle"] = true;
+            	__effects_for_modifiers["muscle"][e] = true;
+            }
+            if (modifier_type_converted ≈ "mysticality percent")
+            {
+                __modifiers_for_effect[e]["mysticality"] = true;
+                __effects_for_modifiers["mysticality"][e] = true;
+            }
+            if (modifier_type_converted ≈ "moxie percent")
+            {
+                __modifiers_for_effect[e]["moxie"] = true;
+                __effects_for_modifiers["moxie"][e] = true;
+            }
+            
+            /*if (e.numeric_modifier(modifier_type_converted) == 0.0 && modifier_value.length() > 0 && e.string_modifier(modifier_type_converted) == "")// && !__effect_contains_non_constant_modifiers[e])
+            {
+            	//print_html("No match on \"" + modifier_type_converted + "\"");
+                print_html("No match on \"" + modifier_type_converted + "\" for " + e + " (" + string_modifiers + ")");
+            }*/
+            //modifier_types[modifier_type] = true;
+            //modifier_values[modifier_value] = true;
+        }
+        //return;
+	}
+	/*print_html("Types:");
+	foreach type in modifier_types
+	{
+		print_html(type);
+	}
+	print_html("");
+    print_html("Values:");
+    foreach value in modifier_values
+    {
+        print_html(value);
+    }*/
+}
+initialiseModifiers();
+
+initialiseGenieEffectDescriptions();
+buffer genieGenerateEffectDescription(effect e)
+{
+	if (__genie_saved_effect_descriptions contains e) return __genie_saved_effect_descriptions[e];
+	buffer out;
+	boolean first = true;
+	//foreach modifier in __numeric_modifier_names
+	foreach modifier in __modifiers_for_effect[e]
+	{
+		float v = e.numeric_modifier(modifier);
+		if (v == 0.0) continue;
+		if (first)
+		{
+			first = false;
+		}
+		else
+		{
+			out.append(",");
+		}
+		if (v > 0)
+			out.append("+");
+		out.append(v.round());
+		if (__effect_descriptions_modifier_is_percent[modifier] || modifier.contains_text("Percent"))
+			out.append("%");
+		out.append(" ");
+		if (__effect_descriptions_modifier_short_description_mapping contains modifier)
+			out.append(__effect_descriptions_modifier_short_description_mapping[modifier]);
+		else
+		{
+			string description = modifier;
+			if (description.contains_text(" Percent"))
+				description = description.replace_string(" Percent", "");
+			if (description.contains_text("Mysticality"))
+				description = description.replace_string("Mysticality", " Myst");
+			if (description.contains_text("Maximum "))
+				description = description.replace_string("Maximum ", "");
+			if (description.contains_text("Resistance"))
+				description = description.replace_string("Resistance", "res");
+			if (description.contains_text("Damage"))
+				description = description.replace_string("Damage", "dmg");
+			
+			description = description.to_lower_case();
+			out.append(description);
+		}
+	}
+	if (!__effect_contains_non_constant_modifiers[e]) //always regenerate dynamic effects
+		__genie_saved_effect_descriptions[e] = out;
+	return out;
+}
+
+/////////////
 
 // Stolen from Ezandora's genie relay script, maybe mafia coders could incorporate a better way to check this (like effect.isWishable, effect.isAvatarPotion, things like that)
 boolean [effect] __genie_invalid_effects = $effects[jukebox hero,Juicy Boost,Meteor Showered,Steely-eyed squint,Blue Eyed Devil,Cereal Killer,Nearly All-Natural,Amazing,Throwing some shade,A rose by any other material,Gaze of the Gazelle,East of Eaten,Robot Friends,Smart Drunk,Margamergency,Pajama Party,Rumpel-Pumped,Song of Battle,Song of Solitude,Buy!\  Sell!\  Buy!\  Sell!,eldritch attunement,The Inquisitor's unknown effect,Filthworm Drone Stench,Filthworm Guard Stench,Filthworm Larva Stench,Green Peace,Red Menace,Video... Games?,things man was not meant to eat,Whitesloshed,thrice-cursed,bendin' hell,Synthesis: Hot,Synthesis: Cold,Synthesis: Pungent,Synthesis: Scary,Synthesis: Greasy,Synthesis: Strong,Synthesis: Smart,Synthesis: Cool,Synthesis: Hardy,Synthesis: Energy,Synthesis: Greed,Synthesis: Collection,Synthesis: Movement,Synthesis: Learning,Synthesis: Style,The Good Salmonella,Giant Growth,Lovebotamy,Open Heart Surgery,Wandering Eye Surgery,gar-ish,Puissant Pressure,Perspicacious Pressure,Pulchritudinous Pressure,It's Good To Be Royal!,The Fire Inside,Puzzle Champ,The Royal We,Hotform,Coldform,Sleazeform,Spookyform,Stenchform,A Hole in the World,Bored With Explosions,thanksgetting,Barrel of Laughs,Beer Barrel Polka,Superdrifting,Covetin' Drunk,All Wound Up,Driving Observantly,Driving Waterproofly,Bow-Legged Swagger,First Blood Kiwi,You've Got a Stew Going!,Shepherd's Breath,Of Course It Looks Great,Doing The Hustle,Fortune of the Wheel,Shelter of Shed,Hot Sweat,Cold Sweat,Rank Sweat,Black Sweat,Flop Sweat,Mark of Candy Cain,Black Day,What Are The Odds!?,Dancin' Drunk, School Spirited,Muffled,Sour Grapes,Song of Fortune,Pork Barrel,Ashen,Brooding,Purple Tongue,Green Tongue,Orange Tongue,Red Tongue,Blue Tongue,Black Tongue,Cupcake of Choice,The Cupcake of Wrath,Shiny Happy Cupcake,Your Cupcake Senses Are Tingling,Tiny Bubbles in the Cupcake,Broken Heart,Fiery Heart,Cold Hearted,Sweet Heart,Withered Heart,Lustful Heart,Pasta Eyeball,Cowlick,It's Ridiculous,Dangerous Zone Song,Tiffany's Breakfast,Flashy Dance Song,Pet Shop Song,Dark Orchestral Song,Bounty of Renenutet,Octolus Gift,Magnetized Ears,Lucky Struck,Drunk and Avuncular,Ministrations in the Dark,Record Hunger,SuperStar,Everything Looks Blue,Everything Looks Red,Everything Looks Yellow,Snow Fortified,Bubble Vision,High-Falutin',Song of Accompaniment,Song of Cockiness,Song of the Glorious Lunch,Song of the Southern Turtle,Song of Sauce,Song of Bravado,Song of Slowness,Song of Starch,Song of the North,It's a Good Life!,I'll Have the Soup,Why So Serious?,&quot;The Disease&quot;,Unmuffled,Overconfident,Shrieking Weasel,Biker Swagger,Punchable Face,ChibiChanged&trade;,Avatar of She-Who-Was,Behind the Green Curtain,Industrially Frosted,Mer-kinkiness,Hotcaked,[1553]Slicked-Back Do,Eggscitingly Colorful,Party on Your Skin,Blessing of the Spaghetto,Force of Mayo Be With You,Ear Winds,Desenfantasmada,Skull Full of Hot Chocolate,Hide of Sobek,Wassailing You,Barrel Chested,Mimeoflage,Tainted Love Potion,Avatar of the Storm Tortoise,Fortunate\, Son,Avatar of the War Snapper,Faerie Fortune,Heroic Fortune,Fantasy Faerie Blessing,Brewed Up,Poison For Blood,Fantastical Health,Spirit of Galactic Unity,Inner Elf,The Best Hair You've Ever Had,Hardened Sweatshirt,Yeast-Hungry,More Mansquito Than Man,Spiced Up,Warlock\, Warstock\, and Warbarrel,Tomes of Opportunity,Temporary Blindness,Rolando's Rondo of Resisto,Shielded Unit,Mist Form]; //'
@@ -519,7 +698,7 @@ int _menuEffectIndex = 0;
 void AppendMenuEffects(buffer result, string [effect] effectList, string id)
 {
 	result.append("<div id='" + id + "' style='display: none;'>"); // Change this property to block when hidding, showing stuff!
-	result.append("<table>");
+	result.append("<table style='width:100%;'>");
 	int col = 0;
 	foreach eff, initials in effectList
 	{
@@ -528,11 +707,14 @@ void AppendMenuEffects(buffer result, string [effect] effectList, string id)
 			result.append("<tr>");
 		}
 
-		result.append("<td>");
+		result.append("<td style='width:33%;'>");
 		result.append("<button class='button' title='" + eff + "' id='menu-item-" + _menuEffectIndex++ + "' value='" + initials + "'>");
 		result.append("<img src='/images/itemimages/" + eff.image + "' style='vertical-align: middle;' /></button> ");
 		result.append(eff);
-		result.append("<button class='button' style='border-style:none;font-size:10px;vertical-align:super;' onclick='eff(\"" + eff.descid + "\");'>?</button></td>");
+		result.append("<button class='button' style='border-style:none;font-size:10px;vertical-align:super;' onclick='eff(\"" + eff.descid + "\");'>?</button>");
+		result.append("<br><div style='font-style:italic;font-size:small;'>");
+		result.append(genieGenerateEffectDescription(eff));
+		result.append("<div></td>");
 		col++;
 
 		if (col == 3)
