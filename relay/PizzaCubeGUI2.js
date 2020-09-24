@@ -672,6 +672,7 @@ function ($)
 		installMenuListener("ml");
 		installMenuListener("init");
 		installMenuListener("stat");
+		installMenuListener("dmg");
 		installMenuListener("ele");
 		installMenuListener("combat");
 		installMenuListener("quest");

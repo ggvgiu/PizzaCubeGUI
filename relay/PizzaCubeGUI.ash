@@ -259,15 +259,22 @@ string [effect] _mlEffects = {
 	$effect[Polonoia]: "polo",
 	$effect[Truthful]: "trut",
 	$effect[Aykrophobia]: "ay",
+	$effect[Koyaaniskumquatsi]: "koy",
 };
 
 string [effect] _initEffects = {
 	$effect[Hare-o-dynamic]: "hare",
+	$effect[Ruby-ous]: "rub",
 };
 
 string [effect] _statEffects = {
 	$effect[HGH-charged]: "hg",
 	$effect[Different Way of Seeing Things]: "dif",
+};
+
+string [effect] _dmgEffects = {
+	$effect[Cruisin' for a Bruisin']: "crui",
+	$effect[Drunk With Power]: "drun",
 };
 
 string [effect] _elementEffects = {
@@ -288,6 +295,7 @@ string [effect] _combatEffects = {
 	$effect[Waking the Dead]: "waki",
 	$effect[Lion in Ambush]: "lio",
 	$effect[Inked Well]: "inke",
+	$effect[Predjudicetidigitation]: "pred",
 };
 
 string [effect] _questEffects = {
@@ -321,28 +329,20 @@ string [effect] _moreEffects = {
 	$effect[Broberry Brotality]: "brob",
 	$effect[Brocolate Brostidigitation]: "broc",
 	$effect[Buff as a Baobab]: "buff",
-	$effect[Bureaucratized]: "bure",
 	$effect[Carlweather's Cantata of Confrontation]: "carl",
 	$effect[Category]: "cate",
 	$effect[Cautious Prowl]: "caut",
 	$effect[Ceaseless Snarling]: "ceas",
-	$effect[Certainty]: "cert",
 	$effect[Chihuahua Underfoot]: "chih",
-	$effect[Chorale of Companionship]: "chor",
 	$effect[Citronella Armpits]: "citr",
 	$effect[Cloak of Shadows]: "cloa",
 	$effect[Clyde's Blessing]: "clyd",
-	$effect[Cravin' for a Ravin']: "crav",
 	$effect[Crotchety, Pining]: "crot",
 	$effect[Crying, Dying]: "cryi",
 	$effect[Dexteri Tea]: "dext",
-	$effect[Different Way of Seeing Things]: "diff",
-	$effect[Dirty Pear]: "dirt",
-	$effect[Disquiet Riot]: "disq",
 	$effect[Earthen Fist]: "eart",
 	$effect[Extended Toes]: "exte",
 	$effect[Feroci Tea]: "fero",
-	$effect[Fifty Ways to Bereave Your Lover]: "fift",
 	$effect[Fightin' Drunk]: "figh",
 	$effect[Flyin' Drunk]: "flyi",
 	$effect[Fresh Scent]: "fres",
@@ -353,7 +353,6 @@ string [effect] _moreEffects = {
 	$effect[Gristlesphere]: "gris",
 	$effect[Grrrrrrreat!]: "grrr",
 	$effect[Hagnk's Gratitude]: "hagn",
-	$effect[Having a Ball!]: "havi",
 	$effect[Hiding in Plain Sight]: "hidi",
 	$effect[Hulkien]: "hulk",
 	$effect[Incredibly Hulking]: "incr",
@@ -367,12 +366,9 @@ string [effect] _moreEffects = {
 	$effect[Koyaaniskumquatsi]: "koya",
 	$effect[Lapdog]: "lapd",
 	$effect[Larger]: "larg",
-	$effect[Leisurely Amblin']: "leis",
 	$effect[License to Punch]: "lice",
 	$effect[Lifted Spirits]: "lift",
 	$effect[Limber as Mortimer]: "limb",
-	$effect[Lion in Ambush]: "lion",
-	$effect[Low on the Hog]: "low",
 	$effect[Manbait]: "manb",
 	$effect[Marbles in Your Mouth]: "marb",
 	$effect[Marco Polarity]: "marc",
@@ -392,43 +388,33 @@ string [effect] _moreEffects = {
 	$effect[Pharmaceutically Cool]: "phar",
 	$effect[Phoenix, Right?]: "phoe",
 	$effect[Phorcefullness]: "phor",
-	$effect[Polonoia]: "polo",
-	$effect[Predjudicetidigitation]: "pred",
 	$effect[Prince of Seaside Town]: "prin",
 	$effect[Proficient Pressure]: "prof",
 	$effect[Purity of Spirit]: "puri",
 	$effect[Racing!]: "raci",
 	$effect[Rational Thought]: "rati",
-	$effect['Roids of the Rhinoceros]: "roi",
+	$effect['Roids of the Rhinoceros]: "'",
 	$effect[Ruby-ous]: "ruby",
 	$effect[Sacr&eacute; Mental]: "sacr",
 	$effect[Salsa Satanica]: "sals",
 	$effect[Screaming! \ SCREAMING! \ AAAAAAAH!]: "scre",
 	$effect[Sensation]: "sens",
-	$effect[Sewer-Drenched]: "sewe",
 	$effect[Simulation Stimulation]: "simu",
-	$effect[Sinuses For Miles]: "sinu",
 	$effect[Sneaky Serpentine Subtlety]: "snea",
 	$effect[stats.enq]: "stat",
-	$effect[Staying Frosty]: "stay",
 	$effect[Stogied]: "stog",
 	$effect[Sucrose-Colored Glasses]: "sucr",
 	$effect[Tapped In]: "tapp",
-	$effect[Taunt of Horus]: "taun",
 	$effect[That's Just Cloud-Talk, Man]: "that",
 	$effect[Thaumodynamic]: "thau",
 	$effect[Towering Strength]: "towe",
 	$effect[Triple-Sized]: "trip",
 	$effect[Trivia Master]: "triv",
-	$effect[Truthful]: "trut",
-	$effect[Ultrahydrated]: "ultr",
 	$effect[Unbarking Dogs]: "unba",
 	$effect[Uncucumbered]: "uncu",
 	$effect[Unpopular]: "unpo",
 	$effect[Void Between the Stars]: "void",
-	$effect[Waking the Dead]: "waki",
 	$effect[WAKKA WAKKA WAKKA]: "wakk",
-	$effect[Whole Latte Love]: "whol",
 	$effect[Zomg WTF]: "zomg",
 };
 
@@ -741,6 +727,7 @@ void AppendMenu(buffer result)
 	result.append("<button type=\"button\" class=\"button\" id=\"carte-ml\" >ML</button> ");
 	result.append("<button type=\"button\" class=\"button\" id=\"carte-init\" >Init</button> ");
 	result.append("<button type=\"button\" class=\"button\" id=\"carte-stat\" >Stat</button> ");
+	result.append("<button type=\"button\" class=\"button\" id=\"carte-dmg\" >Dmg</button> ");
 	result.append("<button type=\"button\" class=\"button\" id=\"carte-ele\" >Elemental Dmg</button> ");
 	result.append("<button type=\"button\" class=\"button\" id=\"carte-combat\" >Combat Freq</button> ");
 	result.append("<button type=\"button\" class=\"button\" id=\"carte-quest\" >Questing</button> ");
@@ -755,6 +742,7 @@ void AppendMenu(buffer result)
 	AppendMenuEffects(result, _mlEffects, "menu-ml");
 	AppendMenuEffects(result, _initEffects, "menu-init");
 	AppendMenuEffects(result, _statEffects, "menu-stat");
+	AppendMenuEffects(result, _dmgEffects, "menu-dmg");
 	AppendMenuEffects(result, _elementEffects, "menu-ele");
 	AppendMenuEffects(result, _combatEffects, "menu-combat");
 	AppendMenuEffects(result, _questEffects, "menu-quest");
