@@ -3,6 +3,9 @@
 // TODO PRO Remember pizza you already baked or some other way of favoriting them and make them again with one click
 // TODO PRO SAVE interface options from menu and sorting of items
 // TODO Lazy epic pizza (just find the best ingredients for an epic pizza and select them) (or the highest possible turn gain available)
+// TODO Blacklist items to hide from the dropdown
+// TODO Reload button saving interface state
+// TODO Suggest simple obtainable ingredients
 
 ///////////////////// EFFECTS
 
@@ -531,7 +534,8 @@ void AppendIngredientRow(buffer result, int itemIndex, string [int] data)
 			result.append("<td>");
 				result.append("<button type=\"button\" class=\"button\" style=\"font-size:x-small;\" id=\"sort-alpha-" + itemIndex + "\">Alpha ^</button>");
 				result.append("<button type=\"button\" class=\"button\" style=\"font-size:x-small;\" id=\"sort-price-" + itemIndex + "\">Price</button>");
-				result.append("<button type=\"button\" class=\"button\" style=\"font-size:x-small;\" id=\"sort-letter-" + itemIndex + "\">Letters</button></td>");
+				result.append("<button type=\"button\" class=\"button\" style=\"font-size:x-small;\" id=\"sort-letter-" + itemIndex + "\">Letters</button>");
+				result.append("<button type=\"button\" class=\"button\" style=\"font-size:x-small;\" id=\"sort-amount-" + itemIndex + "\">Amount</button>");
 			result.append("</td>");
 		result.append("</tr>");
 }
@@ -876,7 +880,7 @@ buffer AddSorting(buffer page)
 					"<div align=\"right\">" +
 					"Starts With: <input type=\"text\" id=\"firstLetterInput\" minlength=\"0\" maxlength=\"1\" size=\"2\">" +
 					" Filter: <input type=\"text\" id=\"searchInput\"><br>" +
-					"Sort: <button type=\"button\" class=\"button\" id=\"sort-alpha\"></button><button type=\"button\" class=\"button\" id=\"sort-price\"></button><button type=\"button\" class=\"button\" id=\"sort-letter\"></button><br>" + 
+					"Sort: <button type=\"button\" class=\"button\" id=\"sort-alpha\"></button><button type=\"button\" class=\"button\" id=\"sort-price\"></button><button type=\"button\" class=\"button\" id=\"sort-letter\"></button><button type=\"button\" class=\"button\" id=\"sort-amount\"></button><br>" + 
 					"</div><br>";
 
 	matcher addButton = create_matcher(addPlace, page);

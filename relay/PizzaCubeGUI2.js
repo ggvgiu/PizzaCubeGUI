@@ -345,6 +345,7 @@ function ($)
 		$('#sort-alpha-' + index).html(sort == "alpha" ? "Alpha " + sortReverseStr : "Alpha");
 		$('#sort-price-' + index).html(sort == "price" ? "Price " + sortReverseStr : "Price");
 		$('#sort-letter-' + index).html(sort == "letter" ? "Letters " + sortReverseStr : "Letters");
+		$('#sort-amount-' + index).html(sort == "amount" ? "Amount " + sortReverseStr : "Amount");
 	}
 
 	function updateOptionsList(index, firstLetter, filter, sorting, sortReverse)
@@ -374,8 +375,17 @@ function ($)
 		{
 			sortingFunc = function(a, b)
 			{
-				var aPrice = parseInt(a.attr("data-len"));
-				var bPrice = parseInt(b.attr("data-len"));
+				var aLen = parseInt(a.attr("data-len"));
+				var bLen = parseInt(b.attr("data-len"));
+				return aLen - bLen;
+			}
+		}
+		else if (sorting == "amount")
+		{
+			sortingFunc = function(a, b)
+			{
+				var aPrice = parseInt(a.attr("data-qty"));
+				var bPrice = parseInt(b.attr("data-qty"));
 				return aPrice - bPrice;
 			}
 		}
@@ -518,6 +528,7 @@ function ($)
 		sortButtonClick($('#sort-alpha-' + index), "alpha", index);
 		sortButtonClick($('#sort-price-' + index), "price", index);
 		sortButtonClick($('#sort-letter-' + index), "letter", index);
+		sortButtonClick($('#sort-amount-' + index), "amount", index);
 
 		$('#select-' + index).change(triggerIngredientChange);
 	}

@@ -140,9 +140,18 @@ function ($)
 		{
 			sortingFunc = function(a, b)
 			{
-				var aPrice = parseInt(a.getAttribute("data-len"));
-				var bPrice = parseInt(b.getAttribute("data-len"));
-				return aPrice - bPrice;
+				var aLen = parseInt(a.getAttribute("data-len"));
+				var bLen = parseInt(b.getAttribute("data-len"));
+				return aLen - bLen;
+			}
+		}
+		else if (sort == "amount")
+		{
+			sortingFunc = function(a, b)
+			{
+				var aQty = parseInt(a.getAttribute("data-qty"));
+				var bQty = parseInt(b.getAttribute("data-qty"));
+				return aQty - bQty;
 			}
 		}
 
@@ -277,6 +286,9 @@ function ($)
 		
 		var sortLetter = document.getElementById("sort-letter");
 		sortLetter.innerHTML = sort == "letter" ? "Letters " + sortReverseStr : "Letters";
+
+		var sortAmount = document.getElementById("sort-amount");
+		sortAmount.innerHTML = sort == "amount" ? "Amount " + sortReverseStr : "Amount";
 	}
 
 	function updateEffectTurnsInterface(totalPrice)
@@ -476,6 +488,23 @@ function ($)
 			else
 			{
 				sort = "letter";
+				sortReverse = false;
+				ReSort();
+			}
+		}
+	);
+
+	$('#sort-amount').click(
+		function()
+		{
+			if (sort == "amount")
+			{
+				sortReverse = !sortReverse;
+				ReSort();
+			}
+			else
+			{
+				sort = "amount";
 				sortReverse = false;
 				ReSort();
 			}
